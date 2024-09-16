@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Slope | SentryGames</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="content/favicon.png" type="image/png">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap" rel="stylesheet">
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Play Now on SentryGames. Enjoy this exciting game with a clean and responsive design.">
+    <meta name="keywords" content="online games, free games, play games online, SentryGames, game embed, play sentrygames, sentry games">
+    <meta name="author" content="SentryGames">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #111111;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .top-left-link {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 1em;
+            color: white;
+            opacity: 0.5;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .top-left-link::before {
+            content: '←'; /* HTML back arrow */
+            font-size: 1.5em;
+            margin-right: 8px;
+        }
+
+        /* Hover effect for back button (no scaling) */
+        .top-left-link:hover {
+            opacity: 0.8;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            width: 90%;
+            max-width: 800px;
+            padding: 20px 0;
+        }
+
+        h1 {
+            font-size: 2em;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        /* Game iframe styling */
+        iframe {
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 16 / 9; /* 16:9 aspect ratio */
+            border: none;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            display: none; /* Initially hidden */
+        }
+
+        /* Play button styling inside the gray square */
+        .play-button {
+            font-size: 1.5em;
+            color: black;
+            background-color: white;
+            border: none;
+            padding: 12px 25px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .play-button:hover {
+            transform: scale(1.1);
+            background-color: #ddd;
+        }
+
+        /* Light gray square with centered play button, matching the iframe size */
+        .gray-square {
+            width: 104%;
+            max-width: 800px;
+            aspect-ratio: 16 / 9;
+            background-color: #1f1f1f;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Bottom bar directly below the gray square */
+        .bottom-bar {
+            width: 97.6%;
+            max-width: 800px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #222;
+            color: white;
+            border-top: 1px solid #333;
+            border-bottom-left-radius: 12px;  /* Bottom border straight, rounded corners only on the top */
+            border-bottom-right-radius: 12px;
+        }
+
+        .bottom-bar .icon {
+            display: flex;
+            align-items: center;
+        }
+
+        .bottom-bar .icon img {
+            width: 31px;
+            height: 31px;
+            border-radius: 8px;
+        }
+
+        .bottom-bar .name {
+            margin-left: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        /* Fullscreen button styling and hover effect */
+        .bottom-bar .fullscreen-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .bottom-bar .fullscreen-btn img {
+            width: 30px;
+            height: 30px;
+        }
+
+        .bottom-bar .fullscreen-btn:hover {
+            transform: scale(1.1);
+            background-color: #333;
+            border-radius: 4px;
+        }
+
+        footer {
+            margin-top: -10px;
+            font-size: 0.9em;
+            opacity: 0.6;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            iframe {
+                width: 104%;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="/all-games" class="top-left-link">
+        All Games
+    </a>
+
+    <div class="container">
+
+        <!-- Light gray square with centered play button -->
+        <div class="gray-square" id="gray-square">
+            <button class="play-button" id="play-btn">Play</button>
+        </div>
+
+        <!-- Game iframe initially hidden -->
+        <iframe id="game-iframe" src="https://html-classic.itch.zone/html/7243483/index.html" title="game-container"></iframe>
+
+        <!-- Bottom bar (visible even with the play button) -->
+        <div class="bottom-bar" id="bottom-bar">
+            <div class="icon">
+                <img src="content/bloons-td-6.jpg" alt="Game Icon">
+                <div class="name">Bloons TD 6</div>
+            </div>
+            <button class="fullscreen-btn" onclick="toggleFullscreen()">
+                <img src="content/fullscreen.png" alt="Fullscreen Icon">
+            </button>
+        </div>
+    </div>
+
+    <footer>
+        &copy; SentryGames - <span id="current-year"></span>
+    </footer>
+
+    <script>
+        // Set the current year
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        // Play button functionality
+        document.getElementById('play-btn').addEventListener('click', function() {
+            document.getElementById('game-iframe').style.display = 'block'; // Show the iframe
+            this.style.display = 'none'; // Hide the play button
+            document.getElementById('gray-square').style.display = 'none'; // Hide the gray square
+        });
+
+        // Fullscreen toggle for the game embed, not the whole page
+        function toggleFullscreen() {
+            const iframe = document.getElementById('game-iframe');
+            if (iframe.requestFullscreen) {
+                iframe.requestFullscreen();
+            } else if (iframe.mozRequestFullScreen) { // Firefox
+                iframe.mozRequestFullScreen();
+            } else if (iframe.webkitRequestFullscreen) { // Chrome, Safari, and Opera
+                iframe.webkitRequestFullscreen();
+            } else if (iframe.msRequestFullscreen) { // IE/Edge
+                iframe.msRequestFullscreen();
+            }
+        }
+    </script>
+
+</body>
+</html>
