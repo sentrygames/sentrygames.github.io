@@ -182,135 +182,152 @@
         backups <span class="arrow-icon">→</span>
     </div>
 
-    <script>
-        // Set the current year
-        document.getElementById('current-year').textContent = new Date().getFullYear();
+<script>
+    // Set the current year
+    document.getElementById('current-year').textContent = new Date().getFullYear();
 
-        // Fade-in effect
-        function fadeInContent() {
+    // Fade-in effect
+    function fadeInContent() {
+        document.body.style.opacity = '1';
+    }
+
+    // This ensures fade-in always happens, even if cached
+    setInterval(() => {
+        if (document.body.style.opacity !== '1') {
             document.body.style.opacity = '1';
         }
+    }, 700); // Checks every 0.7 seconds to ensure fade-in
 
-        window.onload = () => setTimeout(fadeInContent, 50);
+    // Fade-in on page load
+    window.onload = () => setTimeout(fadeInContent, 50);
 
-        // Grid of Dots Moving
-        const canvas = document.querySelector('canvas');
-        const ctx = canvas.getContext('2d');
+    // Cache-control (to prevent caching)
+    window.addEventListener('load', function () {
+        const metaTag = document.createElement('meta');
+        metaTag.httpEquiv = 'Cache-Control';
+        metaTag.content = 'no-cache, no-store, must-revalidate';
+        document.head.appendChild(metaTag);
+    });
 
-        let width, height, dots;
+    // Dots animation logic (unchanged)
+    const canvas = document.querySelector('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    let width, height, dots;
 
-        function resize() {
-            width = window.innerWidth;
-            height = window.innerHeight;
-            canvas.width = width;
-            canvas.height = height;
-            dots = createDots();
-        }
+    function resize() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+        dots = createDots();
+    }
 
-        function createDots() {
-            const numberOfDots = Math.floor(width * height / 9000);
-            const dotArray = [];
+    function createDots() {
+        const numberOfDots = Math.floor(width * height / 9000);
+        const dotArray = [];
 
-            for (let i = 0; i < numberOfDots; i++) {
-                dotArray.push({
-                    x: Math.random() * width,
-                    y: Math.random() * height,
-                    vx: (Math.random() - 0.5) * 0.5,
-                    vy: (Math.random() - 0.5) * 0.5,
-                    radius: Math.random() * 2 + 1
-                });
-            }
-
-            return dotArray;
-        }
-
-        function animateDots() {
-            ctx.clearRect(0, 0, width, height);
-            
-            dots.forEach(dot => {
-                dot.x += dot.vx;
-                dot.y += dot.vy;
-
-                if (dot.x < 0 || dot.x > width) dot.vx = -dot.vx;
-                if (dot.y < 0 || dot.y > height) dot.vy = -dot.vy;
-
-                ctx.beginPath();
-                ctx.arc(dot.x, dot.y, dot.radius, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-                ctx.fill();
+        for (let i = 0; i < numberOfDots; i++) {
+            dotArray.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                radius: Math.random() * 2 + 1
             });
-
-            connectDots();
-            requestAnimationFrame(animateDots);
         }
 
-        function connectDots() {
-            for (let i = 0; i < dots.length; i++) {
-                for (let j = i + 1; j < dots.length; j++) {
-                    const distance = Math.hypot(dots[i].x - dots[j].x, dots[i].y - dots[j].y);
-                    if (distance < 100) {
-                        ctx.beginPath();
-                        ctx.moveTo(dots[i].x, dots[i].y);
-                        ctx.lineTo(dots[j].x, dots[j].y);
-                        ctx.strokeStyle = `rgba(255, 255, 255, ${1 - distance / 100})`;
-                        ctx.stroke();
-                    }
+        return dotArray;
+    }
+
+    function animateDots() {
+        ctx.clearRect(0, 0, width, height);
+        
+        dots.forEach(dot => {
+            dot.x += dot.vx;
+            dot.y += dot.vy;
+
+            if (dot.x < 0 || dot.x > width) dot.vx = -dot.vx;
+            if (dot.y < 0 || dot.y > height) dot.vy = -dot.vy;
+
+            ctx.beginPath();
+            ctx.arc(dot.x, dot.y, dot.radius, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.fill();
+        });
+
+        connectDots();
+        requestAnimationFrame(animateDots);
+    }
+
+    function connectDots() {
+        for (let i = 0; i < dots.length; i++) {
+            for (let j = i + 1; j < dots.length; j++) {
+                const distance = Math.hypot(dots[i].x - dots[j].x, dots[i].y - dots[j].y);
+                if (distance < 100) {
+                    ctx.beginPath();
+                    ctx.moveTo(dots[i].x, dots[i].y);
+                    ctx.lineTo(dots[j].x, dots[j].y);
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${1 - distance / 100})`;
+                    ctx.stroke();
                 }
             }
         }
+    }
 
-        window.addEventListener('resize', resize);
-        resize();
-        animateDots();
+    window.addEventListener('resize', resize);
+    resize();
+    animateDots();
 
-        // Handle button click to trigger particle effect and redirect
-        const button = document.getElementById('all-games-btn');
-        button.addEventListener('mouseup', function() {
-            generateParticles(button);
-            document.body.style.transition = 'opacity 0.6s ease-in-out';
-            document.body.style.opacity = '0'; // Fade out
+    // Handle button click to trigger particle effect and redirect
+    const button = document.getElementById('all-games-btn');
+    button.addEventListener('mouseup', function() {
+        generateParticles(button);
+        document.body.style.transition = 'opacity 0.6s ease-in-out';
+        document.body.style.opacity = '0'; // Fade out
 
-            setTimeout(function() {
-                window.location.href = '/all-games'; // Redirect after 0.2s
-            }, 200);
-        });
+        setTimeout(function() {
+            window.location.href = '/all-games'; // Redirect after 0.2s
+        }, 200);
+    });
 
-        function generateParticles(button) {
-            const particlesCount = 20;
-            const buttonRect = button.getBoundingClientRect();
-            for (let i = 0; i < particlesCount; i++) {
-                const particle = document.createElement('div');
-                particle.classList.add('particle');
+    function generateParticles(button) {
+        const particlesCount = 20;
+        const buttonRect = button.getBoundingClientRect();
+        for (let i = 0; i < particlesCount; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
 
-                // Randomize particle direction and position
-                const dx = (Math.random() - 0.5) * 200;
-                const dy = (Math.random() - 0.5) * 200;
+            // Randomize particle direction and position
+            const dx = (Math.random() - 0.5) * 200;
+            const dy = (Math.random() - 0.5) * 200;
 
-                particle.style.setProperty('--dx', `${dx}px`);
-                particle.style.setProperty('--dy', `${dy}px`);
-                particle.style.left = `${buttonRect.left + buttonRect.width / 2}px`;
-                particle.style.top = `${buttonRect.top + buttonRect.height / 2}px`;
+            particle.style.setProperty('--dx', `${dx}px`);
+            particle.style.setProperty('--dy', `${dy}px`);
+            particle.style.left = `${buttonRect.left + buttonRect.width / 2}px`;
+            particle.style.top = `${buttonRect.top + buttonRect.height / 2}px`;
 
-                document.body.appendChild(particle);
+            document.body.appendChild(particle);
 
-                // Remove particle after animation ends
-                setTimeout(() => {
-                    particle.remove();
-                }, 1000);
-            }
+            // Remove particle after animation ends
+            setTimeout(() => {
+                particle.remove();
+            }, 1000);
         }
+    }
 
-        // Handle "backups" link click
-        const backupsLink = document.getElementById('backups-link');
-        backupsLink.addEventListener('click', function() {
-            document.body.style.transition = 'opacity 0.6s ease-in-out';
-            document.body.style.opacity = '0'; // Fade out
+    // Handle "backups" link click
+    const backupsLink = document.getElementById('backups-link');
+    backupsLink.addEventListener('click', function() {
+        document.body.style.transition = 'opacity 0.6s ease-in-out';
+        document.body.style.opacity = '0'; // Fade out
 
-            setTimeout(function() {
-                window.location.href = '/backups'; // Redirect after 0.2s
-            }, 200);
-        });
-    </script>
+        setTimeout(function() {
+            window.location.href = '/backups'; // Redirect after 0.2s
+        }, 200);
+    });
+</script>
+
 
 </body>
 </html>
