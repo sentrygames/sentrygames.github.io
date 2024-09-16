@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Backups | SentryGames</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="content/favicon.png" type="image/png">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #111111;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.6s ease-in-out;
+            overflow: hidden;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2em;
+            font-weight: 800;
+            margin: 0 0 20px;
+        }
+
+        .url-list {
+            list-style: none;
+            padding: 0;
+            font-size: 1.2em;
+        }
+
+        .url-list a {
+            color: #1E90FF;
+            text-decoration: none;
+            display: block;
+            margin: 10px 0;
+        }
+
+        .url-list a:hover {
+            text-decoration: underline;
+        }
+
+        .message {
+            font-size: 1.2em;
+            color: #f44336;
+        }
+
+        .info {
+            font-size: 0.9em;
+            color: #999;
+        }
+
+        .go-back {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 1.2em;
+            font-weight: 600;
+            color: white;
+            opacity: 0.5;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            transition: opacity 0.4s ease;
+        }
+
+        .go-back:hover {
+            opacity: 0.8;
+        }
+
+        .go-back .arrow-icon {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body onload="fadeInContent()">
+
+    <div class="go-back" id="go-back">
+        <span class="arrow-icon">←</span> Go Back
+    </div>
+
+    <div class="container">
+        <h1>Backup URLs</h1>
+        <ul class="url-list" id="url-list"></ul>
+        <div class="message" id="message" style="display: none;">
+            Failed to fetch URLs from server
+        </div>
+        <div class="info" id="info" style="display: none;">
+            File returned no available backup URLs. Please try again later.
+        </div>
+    </div>
+
+    <script>
+        // Fade-in effect
+        function fadeInContent() {
+            document.body.style.opacity = '1';
+        }
+
+        window.onload = () => setTimeout(fadeInContent, 50);
+
+        // Fetch backup URLs
+        fetch('content/alternative-urls.txt')
+            .then(response => response.text())
+            .then(text => {
+                const urls = text.split('\n').filter(url => url.trim() !== '');
+                const urlList = document.getElementById('url-list');
+                const message = document.getElementById('message');
+                const info = document.getElementById('info');
+
+                if (urls.length > 0) {
+                    urls.forEach(url => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `<a href="${url}" target="_blank">${url}</a>`;
+                        urlList.appendChild(listItem);
+                    });
+                } else {
+                    message.style.display = 'block';
+                    info.style.display = 'block';
+                }
+            })
+            .catch(() => {
+                document.getElementById('message').style.display = 'block';
+                document.getElementById('info').style.display = 'block';
+            });
+
+        // Go Back functionality
+        document.getElementById('go-back').addEventListener('click', () => {
+            window.history.back();
+        });
+    </script>
+
+</body>
+</html>
