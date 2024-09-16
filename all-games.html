@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>All Games | SentryGames</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="content/favicon.png" type="image/png">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #111111;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.6s ease-in-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 3em;
+            font-weight: 800;
+            margin: 20px 0;
+        }
+
+        /* Moving dots and lines background */
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        /* Search Bar and Filter */
+        .search-filter-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 90%;
+            max-width: 1200px;
+            margin-bottom: 20px;
+        }
+
+        .search-bar, .filter-button, .sort-dropdown {
+            border-radius: 12px;
+            padding: 10px;
+            font-size: 1.2em;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #222;
+            color: white;
+            border: none;
+            outline: none;
+        }
+
+        .search-bar {
+            flex: 3;
+            margin-right: 15px;
+            border: 2px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-bar:focus {
+            border-color: #666;
+        }
+
+        .filter-button {
+            flex: 0.75;
+            height: 55px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background-color: #333;
+            transition: background-color 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .filter-button:hover {
+            background-color: #444;
+        }
+
+        .sort-dropdown {
+            flex: 1;
+            cursor: pointer;
+            background-color: #222;
+        }
+
+        /* Game Grid */
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 20px;
+            width: 90%;
+            max-width: 1200px;
+        }
+
+        .game-card {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .game-card:hover {
+            transform: scale(1.05);
+            background-color: #444;
+        }
+
+        .game-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 15px;
+        }
+
+        .game-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: white;
+        }
+
+        /* Filter Popup */
+        .filter-popup {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            width: 200px;
+            background-color: #fff;
+            color: black;
+            padding: 20px;
+            border-radius: 12px;
+            display: none;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .filter-popup.active {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .filter-popup.inactive {
+            display: block;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.8);
+        }
+
+        .filter-popup h3 {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .filter-option input {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body onload="fadeInContent()">
+    <canvas id="backgroundCanvas"></canvas>
+
+    <h1>All Games</h1>
+
+    <!-- Search Bar and Filter -->
+    <div class="search-filter-bar">
+        <input type="text" id="search-bar" class="search-bar" placeholder="Search all games...">
+        <button class="filter-button" id="filter-button">
+            <img src="content/filter-icon.png" alt="Filter" width="24px" height="24px">
+        </button>
+        <select id="sort-dropdown" class="sort-dropdown">
+            <option value="A-Z">A-Z</option>
+            <option value="Z-A">Z-A</option>
+        </select>
+    </div>
+
+    <!-- Game Grid -->
+    <div class="game-grid" id="game-grid">
+        <!-- Games will be manually added here -->
+    </div>
+
+    <!-- Filter Popup -->
+    <div class="filter-popup" id="filter-popup">
+        <h3>Filter by Genre</h3>
+        <div class="filter-option">
+            <input type="checkbox" id="car" name="genre" value="Car">
+            <label for="action">Car</label>
+        </div>
+        <div class="filter-option">
+            <input type="checkbox" id="skill" name="genre" value="Skill">
+            <label for="adventure">Skill</label>
+        </div>
+        <div class="filter-option">
+            <input type="checkbox" id="action" name="genre" value="Action">
+            <label for="puzzle">Action</label>
+        </div>
+        <div class="filter-option">
+            <input type="checkbox" id="shooting" name="genre" value="Shooting">
+            <label for="puzzle">Shooting</label>
+        </div>
+        <div class="filter-option">
+            <input type="checkbox" id="sports" name="genre" value="Sports">
+            <label for="puzzle">Sports</label>
+        </div>
+        <div class="filter-option">
+            <input type="checkbox" id="idle" name="genre" value="Idle">
+            <label for="puzzle">Idle</label>
+        </div>
+        <!-- Add more genres as needed -->
+    </div>
+
+    <script>
+        // Fade-in effect
+        function fadeInContent() {
+            document.body.style.opacity = '1';
+        }
+        window.onload = () => setTimeout(fadeInContent, 50);
+
+        // Toggle Filter Popup
+        const filterButton = document.getElementById('filter-button');
+        const filterPopup = document.getElementById('filter-popup');
+
+        filterButton.addEventListener('click', () => {
+            if (filterPopup.classList.contains('active')) {
+                filterPopup.classList.remove('active');
+                filterPopup.classList.add('inactive');
+                setTimeout(() => {
+                    filterPopup.style.display = 'none';
+                }, 300);
+            } else {
+                filterPopup.classList.remove('inactive');
+                filterPopup.classList.add('active');
+                filterPopup.style.display = 'block';
+            }
+        });
+
+        // Moving dots and lines
+        const canvas = document.getElementById('backgroundCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function initCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            particles = Array.from({ length: 100 }, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 2 + 1,
+                dx: Math.random() - 0.5,
+                dy: Math.random() - 0.5
+            }));
+        }
+
+        function drawParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach((p, i) => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = '#ffffff';
+                ctx.fill();
+
+                // Update position
+                p.x += p.dx;
+                p.y += p.dy;
+
+                // Bounce off edges
+                if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+
+                // Draw lines between nearby particles
+                particles.forEach((otherP, j) => {
+                    if (i !== j) {
+                        const distance = Math.hypot(p.x - otherP.x, p.y - otherP.y);
+                        if (distance < 100) {
+                            ctx.beginPath();
+                            ctx.moveTo(p.x, p.y);
+                            ctx.lineTo(otherP.x, otherP.y);
+                            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                            ctx.lineWidth = 0.5;
+                            ctx.stroke();
+                        }
+                    }
+                });
+            });
+
+            requestAnimationFrame(drawParticles);
+        }
+
+        window.addEventListener('resize', initCanvas);
+        initCanvas();
+        drawParticles();
+
+        // Sample games data (manual addition)
+        const games = [
+            { title: "Moto X3M", icon: "content/images/moto-x3m.jpg", url: "/moto-x3m", genre: "Cars" },
+            { title: "Slope", icon: "content/images/slope.jpg", url: "/slope", genre: "Skill" },
+            { title: "Eggy Car", icon: "content/images/eggy-car.jpg", url: "/eggy-car", genre: "Cars" },
+            // Add more games here
+        ];
+
+        const gameGrid = document.getElementById('game-grid');
+
+        // Function to display games
+        function displayGames(games) {
+            gameGrid.innerHTML = ''; // Clear grid
+            games.forEach(game => {
+                const gameCard = document.createElement('div');
+                gameCard.classList.add('game-card');
+                gameCard.addEventListener('click', () => window.location.href = game.url);
+
+                const gameIcon = document.createElement('img');
+                gameIcon.src = game.icon;
+                gameIcon.alt = game.title;
+                gameIcon.classList.add('game-icon');
+
+                const gameTitle = document.createElement('div');
+                gameTitle.textContent = game.title;
+                gameTitle.classList.add('game-title');
+
+                gameCard.appendChild(gameIcon);
+                gameCard.appendChild(gameTitle);
+                gameGrid.appendChild(gameCard);
+            });
+        }
+
+        // Display games initially (A-Z sorted)
+        displayGames(games.sort((a, b) => a.title.localeCompare(b.title)));
+
+        // Search functionality
+        const searchBar = document.getElementById('search-bar');
+        searchBar.addEventListener('input', function() {
+            const searchTerm = searchBar.value.toLowerCase();
+            const filteredGames = games.filter(game => game.title.toLowerCase().includes(searchTerm));
+            displayGames(filteredGames);
+        });
+
+        // Sorting functionality
+        const sortDropdown = document.getElementById('sort-dropdown');
+        sortDropdown.addEventListener('change', function() {
+            const sortOption = sortDropdown.value;
+            if (sortOption === "A-Z") {
+                displayGames(games.sort((a, b) => a.title.localeCompare(b.title)));
+            } else {
+                displayGames(games.sort((a, b) => b.title.localeCompare(a.title)));
+            }
+        });
+
+        // Filter functionality (checkboxes)
+        const genreCheckboxes = document.querySelectorAll('.filter-option input');
+        genreCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const selectedGenres = Array.from(genreCheckboxes)
+                    .filter(checkbox => checkbox.checked)
+                    .map(checkbox => checkbox.value);
+                const filteredGames = selectedGenres.length > 0 
+                    ? games.filter(game => selectedGenres.includes(game.genre))
+                    : games; // No filters applied
+                displayGames(filteredGames);
+            });
+        });
+    </script>
+</body>
+</html>
+
