@@ -10,18 +10,12 @@
     <link rel="icon" href="content/favicon.png" type="image/png">
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap" rel="stylesheet">
 
     <!-- SEO Meta Tags -->
     <meta name="description" content="SentryGames Unblocked - Play Games Unblocked">
-    <meta name="keywords" content="unblocked games, free games, play games online, sentrygames, browser games">
+    <meta name="keywords" content="unblocked games, free games, play games online, sentrygames, browser games, sentry games, classroom 6x, github pages, sentry games github, sentrygames github, sentrygames github pages, sentry games github pages, sentrygames pages, sentry games pages, sentrygames.github.io, sentrygames (.github.io) sentry games unblocked games, sentry games unblocked links, sentrygame, sentry game">
     <meta name="author" content="SentryGames">
-
-    <!-- Google Ads Placeholder -->
-    <!-- Replace this comment with your Google Ads script -->
-
-    <!-- Google Analytics Placeholder -->
-    <!-- Replace this comment with your Google Analytics script -->
 
     <style>
         body {
@@ -37,6 +31,7 @@
             text-align: center;
             opacity: 0;
             transition: opacity 0.6s ease-in-out;
+            overflow: hidden;
         }
 
         h1 {
@@ -57,22 +52,25 @@
             align-items: center;
             justify-content: center;
             border-radius: 8px;
-            transition: all 0.4s ease;
+            transition: transform 0.4s ease;
             margin-top: 30px;
+            position: relative;
+            outline: none;
+            z-index: 1;
         }
 
         .btn:hover {
             transform: scale(1.06);
         }
 
-        .btn:hover .play-icon {
-            transform: rotate(360deg);
-        }
-
         .play-icon {
             display: inline-block;
             margin-right: 12px;
             transition: transform 0.4s ease;
+        }
+
+        .btn:hover .play-icon {
+            transform: rotate(360deg);
         }
 
         .phone-number {
@@ -88,17 +86,80 @@
             position: absolute;
             bottom: 5px;
         }
+
+        /* Particle CSS */
+        .particle {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particle-move 1s ease forwards;
+        }
+
+        @keyframes particle-move {
+            from {
+                opacity: 1;
+                transform: translate(0, 0);
+            }
+            to {
+                opacity: 0;
+                transform: translate(var(--dx), var(--dy)) scale(0);
+            }
+        }
+
+        /* Background Dots */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #111111;
+            z-index: -1;
+        }
+
+        canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Backups Link */
+        .backups-link {
+            position: absolute;
+            bottom: 15px; /* Lowered a tiny bit */
+            right: 20px;
+            font-size: 1.2em;
+            font-weight: 600; /* Font weight set to 600 */
+            color: white;
+            opacity: 0.3;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            transition: opacity 0.4s ease;
+        }
+
+        .backups-link:hover {
+            opacity: 0.6;
+        }
+
+        .arrow-icon {
+            margin-left: 8px;
+        }
     </style>
 </head>
 <body onload="fadeInContent()">
 
     <div class="container">
         <h1>SentryGames</h1>
-        <a href="/all-games">
-            <button class="btn">
-                <span class="play-icon">▶</span> All Games
-            </button>
-        </a>
+        <button class="btn" id="all-games-btn">
+            <span class="play-icon">▶</span> All Games
+        </button>
     </div>
 
     <!-- Phone number at the bottom -->
@@ -111,6 +172,16 @@
         &copy; SentryGames - <span id="current-year"></span>
     </footer>
 
+    <!-- Background Dots -->
+    <div class="background">
+        <canvas></canvas>
+    </div>
+
+    <!-- Backups Link -->
+    <div class="backups-link" id="backups-link">
+        backups <span class="arrow-icon">→</span>
+    </div>
+
     <script>
         // Set the current year
         document.getElementById('current-year').textContent = new Date().getFullYear();
@@ -120,8 +191,126 @@
             document.body.style.opacity = '1';
         }
 
-        // Trigger fade-in with a short delay
         window.onload = () => setTimeout(fadeInContent, 50);
+
+        // Grid of Dots Moving
+        const canvas = document.querySelector('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height, dots;
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            dots = createDots();
+        }
+
+        function createDots() {
+            const numberOfDots = Math.floor(width * height / 9000);
+            const dotArray = [];
+
+            for (let i = 0; i < numberOfDots; i++) {
+                dotArray.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    radius: Math.random() * 2 + 1
+                });
+            }
+
+            return dotArray;
+        }
+
+        function animateDots() {
+            ctx.clearRect(0, 0, width, height);
+            
+            dots.forEach(dot => {
+                dot.x += dot.vx;
+                dot.y += dot.vy;
+
+                if (dot.x < 0 || dot.x > width) dot.vx = -dot.vx;
+                if (dot.y < 0 || dot.y > height) dot.vy = -dot.vy;
+
+                ctx.beginPath();
+                ctx.arc(dot.x, dot.y, dot.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                ctx.fill();
+            });
+
+            connectDots();
+            requestAnimationFrame(animateDots);
+        }
+
+        function connectDots() {
+            for (let i = 0; i < dots.length; i++) {
+                for (let j = i + 1; j < dots.length; j++) {
+                    const distance = Math.hypot(dots[i].x - dots[j].x, dots[i].y - dots[j].y);
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.moveTo(dots[i].x, dots[i].y);
+                        ctx.lineTo(dots[j].x, dots[j].y);
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${1 - distance / 100})`;
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+        animateDots();
+
+        // Handle button click to trigger particle effect and redirect
+        const button = document.getElementById('all-games-btn');
+        button.addEventListener('mouseup', function() {
+            generateParticles(button);
+            document.body.style.transition = 'opacity 0.6s ease-in-out';
+            document.body.style.opacity = '0'; // Fade out
+
+            setTimeout(function() {
+                window.location.href = '/all-games'; // Redirect after 0.2s
+            }, 200);
+        });
+
+        function generateParticles(button) {
+            const particlesCount = 20;
+            const buttonRect = button.getBoundingClientRect();
+            for (let i = 0; i < particlesCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+
+                // Randomize particle direction and position
+                const dx = (Math.random() - 0.5) * 200;
+                const dy = (Math.random() - 0.5) * 200;
+
+                particle.style.setProperty('--dx', `${dx}px`);
+                particle.style.setProperty('--dy', `${dy}px`);
+                particle.style.left = `${buttonRect.left + buttonRect.width / 2}px`;
+                particle.style.top = `${buttonRect.top + buttonRect.height / 2}px`;
+
+                document.body.appendChild(particle);
+
+                // Remove particle after animation ends
+                setTimeout(() => {
+                    particle.remove();
+                }, 1000);
+            }
+        }
+
+        // Handle "backups" link click
+        const backupsLink = document.getElementById('backups-link');
+        backupsLink.addEventListener('click', function() {
+            document.body.style.transition = 'opacity 0.6s ease-in-out';
+            document.body.style.opacity = '0'; // Fade out
+
+            setTimeout(function() {
+                window.location.href = '/backups'; // Redirect after 0.2s
+            }, 200);
+        });
     </script>
+
 </body>
 </html>
